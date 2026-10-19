@@ -1,7 +1,10 @@
 - [首页](/)
 
 - 常驻板块
-  - [减脂餐](meal/)
+  - 减脂餐
+    - [怎么吃](meal/)
+    - [一周照着做](meal/week)
+    - [菜谱 26 道](/meal/recipe.html ':ignore')
   - 公积金测试
     - [概览](hp/)
     - [归集](hp/jigui)
