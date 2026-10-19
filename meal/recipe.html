@@ -137,9 +137,26 @@
     .sidebar { display: none; }
     .layout { display: block; }
   }
+
+.site-back{position:fixed;top:0;left:0;right:0;z-index:99999;height:44px;
+  display:flex;align-items:center;gap:8px;padding:0 16px;
+  background:#fff;border-bottom:1px solid #E4E7EC;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px;color:#475467;text-decoration:none;line-height:1;
+  -webkit-font-smoothing:antialiased;}
+.site-back b{font-weight:600;color:#101828;}
+.site-back .sp{color:#D0D5DD;}
+.site-back .cur{color:#98A2B3;font-size:13px;}
+.site-back:hover{background:#FAFAFB;}
+.site-back .ar{font-size:15px;color:#667085;}
+  body{padding-top:44px!important;}
+  .sidebar{top:44px!important;height:calc(100vh - 44px)!important;}
+  @media(max-width:900px){body{padding:44px 16px 60px!important;}}
 </style>
 </head>
 <body>
+
+<a class="site-back" href="https://vkuiqi.github.io/"><span class="ar">←</span><b>vkuiqi</b><span class="sp">/</span><span class="cur">减脂餐 · 菜谱</span></a>
 <div class="layout">
 <aside class="sidebar">
   <p class="side-title">目录</p>

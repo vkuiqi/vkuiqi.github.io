@@ -561,9 +561,25 @@ html.is-mac .kbdp{display:none;}
   .tb{height:auto;min-height:var(--tb-h);padding:8px 14px;flex-wrap:wrap;gap:8px;}
   .tb-right{width:100%;margin-left:0;}
 }
+
+.site-back{position:fixed;top:0;left:0;right:0;z-index:99999;height:44px;
+  display:flex;align-items:center;gap:8px;padding:0 16px;
+  background:#fff;border-bottom:1px solid #E4E7EC;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px;color:#475467;text-decoration:none;line-height:1;
+  -webkit-font-smoothing:antialiased;}
+.site-back b{font-weight:600;color:#101828;}
+.site-back .sp{color:#D0D5DD;}
+.site-back .cur{color:#98A2B3;font-size:13px;}
+.site-back:hover{background:#FAFAFB;}
+.site-back .ar{font-size:15px;color:#667085;}
+  body{padding-top:44px!important;}
+  .app{height:calc(100vh - 44px)!important;}
 </style>
 </head>
 <body>
+
+<a class="site-back" href="https://vkuiqi.github.io/"><span class="ar">←</span><b>vkuiqi</b><span class="sp">/</span><span class="cur">公积金测试 · 测试数据台</span></a>
 <div class="app">
   <!-- ==================== 侧栏 ==================== -->
   <aside class="sb">
