@@ -17,51 +17,53 @@
 </head>
 <body>
 
-<div class="app">
+<header class="top">
+  <span class="brand">吃什么</span>
+  <nav class="jump" id="jump">
+    <a href="#s-today" class="on">今天</a>
+    <a href="#s-week">这周</a>
+    <a href="#s-shop">买菜</a>
+  </nav>
+</header>
 
-  <!-- ========== 今天 ========== -->
-  <section class="screen on" id="screen-today">
-    <header class="hdr">
-      <div>
-        <h1 class="hdr-t" id="today-title">今天</h1>
-        <p class="hdr-s" id="today-sub"></p>
+<main>
+
+  <section class="sec" id="s-today">
+    <div class="sec-head">
+      <div class="head-row">
+        <h1 id="today-title">今天</h1>
+        <div class="stepper">
+          <button data-step="-1" aria-label="前一天">‹</button>
+          <button data-step="1" aria-label="后一天">›</button>
+        </div>
       </div>
-      <button class="pill" id="go-week">这周</button>
-    </header>
-
-    <nav class="daynav" id="daynav">
-      <button data-step="-1" aria-label="前一天">‹</button>
-      <span id="daynav-label">今天</span>
-      <button data-step="1" aria-label="后一天">›</button>
-    </nav>
+      <p class="sec-sub" id="today-sub"></p>
+    </div>
 
     <div id="today-body"></div>
-
-    <footer class="endnote" id="today-foot"></footer>
+    <p class="note" id="today-foot"></p>
   </section>
 
-  <!-- ========== 这周 ========== -->
-  <section class="screen" id="screen-week">
-    <header class="hdr">
-      <button class="back" id="go-today">‹ 返回</button>
-    </header>
-
-    <h1 class="page-t">这周吃什么</h1>
-    <p class="page-s">点某一天，回到那天的做法。</p>
+  <section class="sec" id="s-week">
+    <div class="sec-head">
+      <h1>这周</h1>
+      <p class="sec-sub">点某一天，跳回那天的做法。</p>
+    </div>
     <div class="week" id="week-list"></div>
+  </section>
 
-    <h1 class="page-t" style="margin-top:36px">这周买这些</h1>
-    <p class="page-s">七天十四份饭的料，照着买，买一样划一样。调料不用买。</p>
+  <section class="sec" id="s-shop">
+    <div class="sec-head">
+      <h1>买菜</h1>
+      <p class="sec-sub">七天十四份饭的料，买一样划一样。调料不用买。</p>
+    </div>
     <div class="shoptop" id="shop-top"></div>
     <div id="shop-list"></div>
     <button class="resetlink" id="reset-check">清空勾选</button>
-
-    <footer class="endnote">清单是从这周的菜单算出来的，改了菜它自己会变。</footer>
   </section>
 
-</div>
+</main>
 
-<!-- 换菜 -->
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-mask" data-close></div>
   <div class="sheet-panel">
@@ -73,13 +75,18 @@
   </div>
 </div>
 
-<script src="app.js"></script>
 <script>
-  if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    });
-  }
+(function () {
+  var v = '?v=' + Date.now();
+  var s = document.createElement('script');
+  s.src = 'app.js' + v;
+  s.onload = function () {
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+  };
+  document.body.appendChild(s);
+})();
 </script>
 </body>
 </html>
