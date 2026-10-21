@@ -3,7 +3,7 @@
 const CAT = { protein: '蛋白', veg: '蔬菜', staple: '主食', other: '其他' };
 const CAT_ORDER = ['protein', 'veg', 'staple', 'other'];
 const WEEK = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-const STORE = 'meal.v3';
+const STORE = 'meal.v4';
 
 let DATA = { dishes: [] };
 let MENU = { days: [], rice: 70, fruit: 1, halfRiceDays: [] };
@@ -15,8 +15,7 @@ const save = () => localStorage.setItem(STORE, JSON.stringify(state));
 const dish = id => DATA.dishes.find(d => d.id === id);
 const todayIdx = () => (new Date().getDay() + 6) % 7;
 const md = s => String(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-const RICE_KCAL = 3.46, RICE_PROT = 0.077, FRUIT_KCAL = 90;
-
+const RICE_KCAL = 3.46, RICE_PROT = 0.077;
 const $ = id => document.getElementById(id);
 
 function dateOf(offset) {
@@ -24,26 +23,28 @@ function dateOf(offset) {
   d.setDate(d.getDate() + offset);
   return d;
 }
-function idxOf(offset) {
-  return ((todayIdx() + offset) % 7 + 7) % 7;
-}
+const idxOf = offset => ((todayIdx() + offset) % 7 + 7) % 7;
+
 function planOf(i) {
   const base = MENU.days[i];
   const ov = state.overrides || {};
   return { meat: ov[i + '.meat'] || base.meat, veg: ov[i + '.veg'] || base.veg };
 }
-function riceOf(i) {
-  return (MENU.halfRiceDays || []).includes(i) ? Math.round(MENU.rice / 2) : MENU.rice;
-}
+const riceOf = i => (MENU.halfRiceDays || []).includes(i) ? Math.round(MENU.rice / 2) : MENU.rice;
+
 function mealKcal(i) {
-  const p = planOf(i);
-  const m = dish(p.meat), v = dish(p.veg);
+  const p = planOf(i), m = dish(p.meat), v = dish(p.veg);
   return (m ? m.kcal : 0) + (v ? v.kcal : 0) + Math.round(riceOf(i) * RICE_KCAL);
 }
 function mealProt(i) {
-  const p = planOf(i);
-  const m = dish(p.meat), v = dish(p.veg);
+  const p = planOf(i), m = dish(p.meat), v = dish(p.veg);
   return Math.round((m ? m.protein : 0) + (v ? v.protein : 0) + riceOf(i) * RICE_PROT);
+}
+
+/* 主料：蛋白类里第一个食材，用来代替“荤/素”这种说法 */
+function mainOf(d) {
+  const p = d.ingredients.find(x => x.cat === 'protein');
+  return p ? p.item : '';
 }
 
 /* ---------- 今天 ---------- */
@@ -54,12 +55,13 @@ function dishBlock(d, i, slot) {
     .map(x => `<b>${x.item}</b> ${x.qty}${x.unit}`)
     .join(' · ');
   const steps = d.steps.map(s => `<li>${md(s)}</li>`).join('');
+  const main = mainOf(d);
   return `
   <article class="dish" data-kind="${d.kind}">
     <div class="dish-top">
       <div>
         <h2>${d.name}</h2>
-        <div class="dish-meta">${d.kcal} 大卡 · 蛋白 ${d.protein} g</div>
+        <div class="dish-meta">${main}${main ? ' · ' : ''}${d.kcal} 大卡 · ${d.protein} g 蛋白</div>
       </div>
       <button class="swap" data-swap="${slot}" data-idx="${i}">换</button>
     </div>
@@ -77,13 +79,11 @@ function renderToday() {
   const m = dish(p.meat), v = dish(p.veg);
   const rice = riceOf(i);
   const half = (MENU.halfRiceDays || []).includes(i);
+  const keep = off === 0 ? '明天中午' : '第二天中午';
 
-  const rel = off === 0 ? '今天' : off === 1 ? '明天' : off === -1 ? '昨天' : WEEK[i];
   $('today-title').textContent = off === 0 ? '今天' : WEEK[i];
   $('today-sub').textContent =
-    `${d.getMonth() + 1} 月 ${d.getDate()} 日 · 做两份，一份留着明天中午`;
-
-  $('daynav-label').textContent = off === 0 ? '今天' : `${rel} · ${d.getMonth() + 1}/${d.getDate()}`;
+    `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WEEK[i]} · 做两份，一份留着${keep}`;
 
   $('today-body').innerHTML = `
     <div class="sum">
@@ -117,7 +117,7 @@ function renderWeek() {
   }).join('');
 }
 
-/* ---------- 采购 ---------- */
+/* ---------- 买菜 ---------- */
 function buildList() {
   const map = new Map();
   const n = MENU.days.length;
@@ -154,7 +154,7 @@ function fmtQty(q, u) {
 
 function renderShop() {
   const items = buildList();
-  const groups = CAT_ORDER.map(c => {
+  $('shop-list').innerHTML = CAT_ORDER.map(c => {
     const list = items.filter(x => x.cat === c);
     if (!list.length) return '';
     return `<div class="sgroup">${CAT[c]}</div>` + list.map(x => `
@@ -164,28 +164,14 @@ function renderShop() {
         <span class="qt">${fmtQty(x.qty, x.unit)}</span>
       </div>`).join('');
   }).join('');
-
-  $('shop-list').innerHTML = groups;
   updateShopTop();
 }
 
 function updateShopTop() {
   const items = buildList();
   const done = items.filter(x => state.checked[x.item]).length;
-  $('shop-top').innerHTML = done === items.length && items.length
-    ? `<span>都买齐了</span><b>${done} / ${items.length}</b>`
-    : `<span>共 ${items.length} 样</span><b>${done} / ${items.length}</b>`;
-}
-
-/* ---------- 切换 ---------- */
-function show(which) {
-  const from = document.querySelector('.screen.on');
-  const to = $('screen-' + which);
-  if (from === to) return;
-  if (from) from.classList.remove('on');
-  to.classList.add('on', 'enter');
-  setTimeout(() => to.classList.remove('enter'), 320);
-  window.scrollTo(0, 0);
+  const label = (items.length && done === items.length) ? '都买齐了' : `共 ${items.length} 样`;
+  $('shop-top').innerHTML = `<span>${label}</span><b>${done} / ${items.length}</b>`;
 }
 
 /* ---------- 换菜 ---------- */
@@ -194,12 +180,12 @@ function openSheet(slot, i) {
   const pool = DATA.dishes.filter(d => d.kind === kind);
   const cur = planOf(i)[kind];
 
-  $('sheet-title').textContent = slot === 'meat' ? '换成哪道荤的' : '换成哪道素的';
+  $('sheet-title').textContent = slot === 'meat' ? '换成哪道主菜' : '换成哪道蔬菜';
   $('sheet-body').innerHTML = pool.map(d => `
     <button class="opt ${d.id === cur ? 'cur' : ''}" data-pick="${d.id}" data-slot="${slot}" data-idx="${i}">
       ${d.id === cur ? '<span class="tick">✓</span>' : ''}
       <span class="on-nm">${d.name}</span>
-      <span class="on-mt">${d.kcal} 大卡 · ${d.protein}g</span>
+      <span class="on-mt">${d.kcal} 大卡 · ${d.protein}g 蛋白</span>
     </button>`).join('');
 
   const s = $('sheet');
@@ -213,17 +199,34 @@ function closeSheet() {
   setTimeout(() => { s.hidden = true; }, 240);
 }
 
+/* ---------- 锚点高亮 ---------- */
+function initJump() {
+  const links = Array.from(document.querySelectorAll('.jump a'));
+  const secs = links.map(a => document.querySelector(a.getAttribute('href')));
+  const setOn = i => links.forEach((a, k) => a.classList.toggle('on', k === i));
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) setOn(secs.indexOf(e.target));
+    });
+  }, { rootMargin: '-72px 0px -55% 0px', threshold: 0 });
+  secs.forEach(s => s && io.observe(s));
+
+  links.forEach((a, k) => a.addEventListener('click', ev => {
+    ev.preventDefault();
+    const t = secs[k];
+    if (!t) return;
+    setOn(k);
+    t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+}
+
 /* ---------- 事件 ---------- */
 document.addEventListener('click', e => {
-  if (e.target.closest('#go-week')) { renderWeek(); renderShop(); show('week'); return; }
-  if (e.target.closest('#go-today')) { show('today'); return; }
-
   const dn = e.target.closest('[data-step]');
   if (dn) {
-    const next = (state.offset || 0) + Number(dn.dataset.step);
-    state.offset = Math.max(-3, Math.min(3, next));
-    save();
-    renderToday();
+    state.offset = Math.max(-3, Math.min(3, (state.offset || 0) + Number(dn.dataset.step)));
+    save(); renderToday();
     return;
   }
 
@@ -233,9 +236,7 @@ document.addEventListener('click', e => {
   const pick = e.target.closest('[data-pick]');
   if (pick) {
     state.overrides[pick.dataset.idx + '.' + pick.dataset.slot] = pick.dataset.pick;
-    save();
-    closeSheet();
-    renderToday();
+    save(); closeSheet(); renderToday(); renderWeek(); renderShop();
     return;
   }
 
@@ -244,11 +245,11 @@ document.addEventListener('click', e => {
   const row = e.target.closest('.wrow');
   if (row) {
     const i = Number(row.dataset.day);
-    state.offset = ((i - todayIdx()) % 7 + 7) % 7;
-    if (state.offset > 3) state.offset -= 7;
-    save();
-    renderToday();
-    show('today');
+    let off = ((i - todayIdx()) % 7 + 7) % 7;
+    if (off > 3) off -= 7;
+    state.offset = off;
+    save(); renderToday();
+    document.getElementById('s-today').scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
 
@@ -266,8 +267,7 @@ document.addEventListener('click', e => {
 
   if (e.target.closest('#reset-check')) {
     state.checked = {};
-    save();
-    renderShop();
+    save(); renderShop();
   }
 });
 
@@ -285,8 +285,16 @@ document.addEventListener('keydown', e => {
     ]);
     DATA = d1; MENU = d2;
   } catch (err) {
-    $('today-body').innerHTML = '<p class="endnote">数据没加载出来。用本地服务器或线上地址打开，别直接双击 html 文件。</p>';
+    $('today-body').innerHTML = '<p class="note">数据没加载出来。用本地服务器或线上地址打开，别直接双击 html 文件。</p>';
     return;
   }
   renderToday();
+  renderWeek();
+  renderShop();
+  initJump();
+
+  if (location.hash) {
+    const el = document.querySelector(location.hash);
+    if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 240);
+  }
 })();
