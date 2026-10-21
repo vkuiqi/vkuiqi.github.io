@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>吃什么</title>
-<meta name="theme-color" content="#F6F6F4">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0E0D" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="吃什么">
-<meta name="description" content="每周菜单、采购清单，做饭时照着念">
+<meta name="description" content="每天吃什么、怎么炒，一周买什么">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
@@ -16,30 +17,57 @@
 </head>
 <body>
 
-<header class="top">
-  <div class="bar">
-    <span class="brand">吃什么</span>
-    <span class="date" id="today-label"></span>
-  </div>
-  <nav class="tabs">
-    <button data-view="now" class="on">今晚</button>
-    <button data-view="week">这周</button>
-    <button data-view="shop">采购</button>
-  </nav>
-</header>
+<div class="app">
 
-<main>
-  <section class="view on" id="view-now"></section>
-  <section class="view" id="view-week"></section>
-  <section class="view" id="view-shop"></section>
-</main>
+  <!-- ========== 今天 ========== -->
+  <section class="screen on" id="screen-today">
+    <header class="hdr">
+      <div>
+        <h1 class="hdr-t" id="today-title">今天</h1>
+        <p class="hdr-s" id="today-sub"></p>
+      </div>
+      <button class="pill" id="go-week">这周</button>
+    </header>
 
+    <nav class="daynav" id="daynav">
+      <button data-step="-1" aria-label="前一天">‹</button>
+      <span id="daynav-label">今天</span>
+      <button data-step="1" aria-label="后一天">›</button>
+    </nav>
+
+    <div id="today-body"></div>
+
+    <footer class="endnote" id="today-foot"></footer>
+  </section>
+
+  <!-- ========== 这周 ========== -->
+  <section class="screen" id="screen-week">
+    <header class="hdr">
+      <button class="back" id="go-today">‹ 返回</button>
+    </header>
+
+    <h1 class="page-t">这周吃什么</h1>
+    <p class="page-s">点某一天，回到那天的做法。</p>
+    <div class="week" id="week-list"></div>
+
+    <h1 class="page-t" style="margin-top:36px">这周买这些</h1>
+    <p class="page-s">七天十四份饭的料，照着买，买一样划一样。调料不用买。</p>
+    <div class="shoptop" id="shop-top"></div>
+    <div id="shop-list"></div>
+    <button class="resetlink" id="reset-check">清空勾选</button>
+
+    <footer class="endnote">清单是从这周的菜单算出来的，改了菜它自己会变。</footer>
+  </section>
+
+</div>
+
+<!-- 换菜 -->
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-mask" data-close></div>
   <div class="sheet-panel">
     <div class="sheet-h">
       <b id="sheet-title">换一道</b>
-      <button class="x" data-close aria-label="关闭">关闭</button>
+      <button class="x" data-close>关闭</button>
     </div>
     <div class="sheet-body" id="sheet-body"></div>
   </div>
