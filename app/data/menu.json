@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "note": "week 从周一开始，index 0 = 周一。rice 是每顿生米克数，halfRiceDays 里那几天米饭减半，因为菜里有土豆。",
+  "rice": 70,
+  "fruit": 1,
+  "halfRiceDays": [5],
+  "days": [
+    { "name": "周一", "meat": "m9",  "veg": "s1" },
+    { "name": "周二", "meat": "m2",  "veg": "s3" },
+    { "name": "周三", "meat": "m11", "veg": "s2" },
+    { "name": "周四", "meat": "m10", "veg": "s5" },
+    { "name": "周五", "meat": "m13", "veg": "s7" },
+    { "name": "周六", "meat": "m12", "veg": "s8" },
+    { "name": "周日", "meat": "m14", "veg": "s9" }
+  ]
+}
