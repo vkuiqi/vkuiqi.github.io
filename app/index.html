@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>吃什么</title>
+<meta name="theme-color" content="#F6F6F4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="吃什么">
+<meta name="description" content="每周菜单、采购清单，做饭时照着念">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="bar">
+    <span class="brand">吃什么</span>
+    <span class="date" id="today-label"></span>
+  </div>
+  <nav class="tabs">
+    <button data-view="now" class="on">今晚</button>
+    <button data-view="week">这周</button>
+    <button data-view="shop">采购</button>
+  </nav>
+</header>
+
+<main>
+  <section class="view on" id="view-now"></section>
+  <section class="view" id="view-week"></section>
+  <section class="view" id="view-shop"></section>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-mask" data-close></div>
+  <div class="sheet-panel">
+    <div class="sheet-h">
+      <b id="sheet-title">换一道</b>
+      <button class="x" data-close aria-label="关闭">关闭</button>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
