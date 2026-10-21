@@ -4,7 +4,7 @@
   - 减脂餐
     - [怎么吃](meal/)
     - [一周照着做](meal/week)
-    - [菜谱 26 道](/meal/recipe.html ':ignore')
+    - [菜谱 26 道](meal/recipe)
 
 - 随笔
   - [全部随笔](essay/)
