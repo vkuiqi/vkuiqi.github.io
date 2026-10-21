@@ -73,7 +73,27 @@ body {
   .top { background: var(--bg); }
 }
 
-.brand { font-size: 15px; font-weight: 700; letter-spacing: -.02em; }
+.brand { font-size: 15px; font-weight: 700; letter-spacing: -.02em; cursor: pointer; }
+.brand:active { opacity: .6; }
+
+/* 可点的标题：带一个向下的三角，表示能展开 */
+.pickable { cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.pickable::after {
+  content: ""; width: 0; height: 0;
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-top: 5px solid var(--fg3);
+  margin-top: 5px;
+  transition: .15s;
+}
+.pickable:hover::after { border-top-color: var(--fg2); }
+
+.backtoday {
+  border: 0; background: transparent; padding: 0;
+  font-family: inherit; font-size: 13px; color: var(--accent);
+  cursor: pointer; text-decoration: underline;
+  text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
 
 .jump { display: flex; gap: 6px; margin-right: -6px; }
 .jump a {
