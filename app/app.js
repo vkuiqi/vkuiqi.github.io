@@ -82,8 +82,9 @@ function renderToday() {
   const keep = off === 0 ? '明天中午' : '第二天中午';
 
   $('today-title').textContent = off === 0 ? '今天' : WEEK[i];
-  $('today-sub').textContent =
-    `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WEEK[i]} · 做两份，一份留着${keep}`;
+  $('today-sub').innerHTML =
+    `${d.getMonth() + 1} 月 ${d.getDate()} 日 ${WEEK[i]} · 做两份，一份留着${keep}` +
+    (off !== 0 ? '　<button class="backtoday" data-back="1">回到今天</button>' : '');
 
   $('today-body').innerHTML = `
     <div class="sum">
@@ -175,22 +176,44 @@ function updateShopTop() {
 }
 
 /* ---------- 换菜 ---------- */
+function showSheet(title, html) {
+  $('sheet-title').textContent = title;
+  $('sheet-body').innerHTML = html;
+  const s = $('sheet');
+  s.hidden = false;
+  requestAnimationFrame(() => s.classList.add('in'));
+}
+
+function openDaySheet() {
+  const cur = state.offset || 0;
+  let html = '';
+  for (let off = -3; off <= 3; off++) {
+    const d = dateOf(off), i = idxOf(off);
+    const mark = off === 0 ? '今天' : off === 1 ? '明天' : off === -1 ? '昨天' : '';
+    html += `
+      <button class="opt ${off === cur ? 'cur' : ''}" data-day-off="${off}">
+        ${off === cur ? '<span class="tick">✓</span>' : ''}
+        <span class="on-nm">${WEEK[i]}</span>
+        <span class="on-mt">${d.getMonth() + 1}/${d.getDate()}${mark ? ' · ' + mark : ''}</span>
+      </button>`;
+  }
+  showSheet('跳到哪天', html);
+}
+
 function openSheet(slot, i) {
   const kind = slot === 'meat' ? 'meat' : 'veg';
   const pool = DATA.dishes.filter(d => d.kind === kind);
   const cur = planOf(i)[kind];
 
-  $('sheet-title').textContent = slot === 'meat' ? '换成哪道主菜' : '换成哪道蔬菜';
-  $('sheet-body').innerHTML = pool.map(d => `
-    <button class="opt ${d.id === cur ? 'cur' : ''}" data-pick="${d.id}" data-slot="${slot}" data-idx="${i}">
-      ${d.id === cur ? '<span class="tick">✓</span>' : ''}
-      <span class="on-nm">${d.name}</span>
-      <span class="on-mt">${d.kcal} 大卡 · ${d.protein}g 蛋白</span>
-    </button>`).join('');
-
-  const s = $('sheet');
-  s.hidden = false;
-  requestAnimationFrame(() => s.classList.add('in'));
+  showSheet(
+    slot === 'meat' ? '换成哪道主菜' : '换成哪道蔬菜',
+    pool.map(d => `
+      <button class="opt ${d.id === cur ? 'cur' : ''}" data-pick="${d.id}" data-slot="${slot}" data-idx="${i}">
+        ${d.id === cur ? '<span class="tick">✓</span>' : ''}
+        <span class="on-nm">${d.name}</span>
+        <span class="on-mt">${d.kcal} 大卡 · ${d.protein}g 蛋白</span>
+      </button>`).join('')
+  );
 }
 
 function closeSheet() {
@@ -223,6 +246,29 @@ function initJump() {
 
 /* ---------- 事件 ---------- */
 document.addEventListener('click', e => {
+  if (e.target.closest('#today-title')) { openDaySheet(); return; }
+
+  const dayOpt = e.target.closest('[data-day-off]');
+  if (dayOpt) {
+    state.offset = Number(dayOpt.dataset.dayOff);
+    save(); closeSheet(); renderToday();
+    document.getElementById('s-today').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  if (e.target.closest('[data-back]')) {
+    state.offset = 0;
+    save(); renderToday();
+    return;
+  }
+
+  if (e.target.closest('.brand')) {
+    state.offset = 0;
+    save(); renderToday();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
   const dn = e.target.closest('[data-step]');
   if (dn) {
     state.offset = Math.max(-3, Math.min(3, (state.offset || 0) + Number(dn.dataset.step)));
