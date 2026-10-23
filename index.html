@@ -37,6 +37,27 @@
   .markdown-section a:hover { text-decoration: underline; }
   .markdown-section table { display: table; width: 100%; }
   .markdown-section th { background: #F7F8FA; font-weight: 600; }
+  /* 速查类页面：短列不折行，中文默认逐字断行会很碎 */
+  .markdown-section table th { font-size: 13.5px; color: #475467; }
+  .markdown-section table td { vertical-align: top; font-size: 14px; }
+  .markdown-section table td:first-child,
+  .markdown-section table th:nth-child(2),
+  .markdown-section table td:nth-child(2) { white-space: nowrap; word-break: keep-all; }
+  /* 牌效表的「类型」列（基本 · 攻 / 武器/3 / 坐骑 · 守）给足宽度，别折成两行 */
+  .markdown-section table th:nth-child(3),
+  .markdown-section table td:nth-child(3) { min-width: 5.6em; }
+  /* 窄屏：五列表格硬挤会一字一行，改成横向滚动 */
+  @media (max-width: 768px) {
+    .markdown-section table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .markdown-section table th,
+    .markdown-section table td {
+      min-width: 4.2em; white-space: normal; word-break: keep-all;
+    }
+    .markdown-section table td:first-child,
+    .markdown-section table th:first-child { min-width: 5em; }
+    /* 效果 / 说明这类长文本列给宽一点，避免一字一行 */
+    .markdown-section table td:nth-child(n+4) { min-width: 7em; }
+  }
   .markdown-section blockquote {
     border-left: 3px solid #4F46E5; background: #F7F8FA;
     padding: 10px 16px; color: #475467; margin: 16px 0;
